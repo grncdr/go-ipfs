@@ -330,14 +330,20 @@ func (r *FSRepo) openDatastore() error {
 		return errors.New("unable to open flatfs datastore")
 	}
 
+	id := r.config.Identity.PeerID
+	if id == "" {
+		// the tests pass in a zero Config; cope with it
+		id = fmt.Sprintf("uninitialized_%p", r)
+	}
+	prefix := "fsrepo." + id + ".datastore."
 	mountDS := mount.New([]mount.Mount{
 		{
 			Prefix:    ds.NewKey("/blocks"),
-			Datastore: measure.New("datastore.blocks", blocksDS),
+			Datastore: measure.New(prefix+"blocks", blocksDS),
 		},
 		{
 			Prefix:    ds.NewKey("/"),
-			Datastore: measure.New("datastore.leveldb", r.leveldbDS),
+			Datastore: measure.New(prefix+"leveldb", r.leveldbDS),
 		},
 	})
 	// Make sure it's ok to claim the virtual datastore from mount as

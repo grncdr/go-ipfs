@@ -392,6 +392,8 @@ func (fi *File) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.Open
 	} else if req.Flags&fuse.OpenAppend != 0 {
 		log.Info("Need to append to file!")
 
+		// seek(0) essentially resets the file object, this is required for appends to work
+		// properly
 		_, err := fi.fi.Seek(0, os.SEEK_SET)
 		if err != nil {
 			log.Error("seek reset failed: ", err)
